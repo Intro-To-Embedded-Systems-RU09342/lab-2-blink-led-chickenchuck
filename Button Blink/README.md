@@ -1,5 +1,6 @@
 # Button Blink
 Cycles through four led blinking states when a button is pressed. The states are shown below:
+
 State Number | LED Function
 --- | ---
 0 | off
