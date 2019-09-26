@@ -1,25 +1,20 @@
 # Off Board Blink
-Now that we have the whole blinking LED out of the way, why don't we try making things a little more convenient by taking the G2553 off the development board and into a breadboard. In addition to the software, your README needs to also contain a picture of your circuit with at least 2 LEDs blinking all on a breadboard and without a development board. This means that you will need:
-* Proper power being supplied to the processor
-* Proper Reset Circuitry
-* Proper Bypass and Bulk Capacitors as needed
+Blinks two leds at different speeds. Each LED cycles through four led blinking states when a button is pressed. The states are shown below:
 
-Please be advised that you can easily damage or destroy one of the pins on the MSP430 by applying the wrong voltage or attempting to draw too much current from it. Really check your design before you power up to ensure you do not need request another processor.
+State Number | LED0 Function | LED1 Function
+--- | --- | ---
+0 | off | off
+1 | fast blink | slow blink
+2 | medium blink | medium blink
+3 | slow blink | fast blink
 
-## "Do I need to use a power supply to power this thing?"
-In the beginning part of the exercise, I would say that you can use the 5V/3.3V rails built into the development board by running wires. However, I would recommend looking into how to supply the processor from something like a battery or the power supply. You might want to look into different types of regulators. For example, your circuits may be powered off of a battery that is only 1.8V, or on a system that can only supply you with 13V.
+State 0 is entered on startup. To change the LED and button pins, change the #define statements at the top that give generic names for gpio registers and pins.
 
-## "What about the buttons and resistors and LEDS?"
-You remember those parts bins in the back of the teaching labs? They contain most everything you will need to do this portion of the lab. You should really make a effort to try and replicate what is on those development boards on the breadboard so you can begin to see what is needed to design with a microcontroller. Mess around with different color LEDS and see if they behave the same as the simple Red LEDs.
+The program uses TimerA0 and TimerA1 to time LED flashes. They set to up mode, 8x prescaling, and the values of TA0CCR0 and TA1CCR0 (timer top values) changes depending on the state. An interrupt is generated when the timers overflow, which is caught by an interrupt vector, which toggles the LED pin.
 
-# YOU NEED TO CREATE THE FOLLOWING FOLDER
-* MSP430G2553
+The button press is detected using an interrupt as well. The interrupt is configured to generate on a rising edge, which corresponds to the press (not release) of the button. In the button's interrupt vector, the current state is updated, then TA0CCR0 is updated to its new value based on the new state.
 
-## Extra Work
-Once you get to this point, you are pretty much set in terms of GPIO mastery getting the LEDs to blink, but there are some more exploratory tasks that you can do.
+This program is only compatible with the MSP430G2553. The program was tested with the MSP chip on a breadboard separated from the development board. The MSP chip could be programmed directly on the breadboard via the JTAG signals from the dev board (SBWTDIO and TBWTCK). The board was powered using the 3.3V power from the dev board.
 
-### Off-Board Programming
-Do we need to keep re-inserting the MSP into the development board to program it, or is there some way to keep the chip in the circuit? For starters, try to connect the header which connects the debugger and emulator (that parts that is really dense in parts) to your chip on your board. You will need to look at the datasheets for the MSP430G2553 and the Launchpad itself to see where and how to connect to the programmer. Next, you should really look at using the JTAG connector that is also available on your board.
+![picture](picture.jpg)
 
-### UART/Button Control
-Remember that stuff you did a few parts ago? Can you actually get all of that working again off of the development board? Can you control which lights are on, the speed they blink at, etc.
